@@ -20,7 +20,9 @@ RUN usermod -u 1000 www-data
 
 WORKDIR /var/www/coupons-parser
 
-#CMD composer install ;
-#php bin/console doctrine:database:create --if-not-exists  ; bin/console doctrine:migrations:migrate ;  php-fpm
+#COPY entrypoint.sh /tmp
 
-#WORKDIR /var/www/symfony
+#ENTRYPOINT ["/tmp/entrypoint.sh"]
+
+CMD composer install ;   php-fpm
+

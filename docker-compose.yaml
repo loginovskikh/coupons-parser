@@ -1,13 +1,14 @@
 version: '3'
 services:
     postgres:
-        image: postgres:11
-        #build: Docker/postgres
+#        image: postgres:11
+        build: Docker/postgres
         restart: always
         ports:
             - '5432:5432'
         environment:
-  #          POSTGRES_DB: notebook-symfony
+            POSTGRES_DB: coupons-parser
+            POSTGRES_USER: postgres
             POSTGRES_PASSWORD: password
 
  #       volumes:
