@@ -18,7 +18,7 @@ class Parser
     /**
      * @var Crawler|null
      */
-    protected $parsedData;
+    protected $crawlerData;
 
     protected function getHTML($url)
     {
@@ -39,11 +39,17 @@ class Parser
     protected function parseHTML()
     {
         if(isset($this->html)) {
-            $this->parsedData = new Crawler($this->html);
+            $this->crawlerData = new Crawler($this->html);
         }
         else {
             throw new Exception('Nothing to parse', 404);
         }
+    }
+
+    protected function parseDOMEelements($xpath)
+    {
+        return  $this->crawlerData->filterXPath($xpath);
+
     }
 
 

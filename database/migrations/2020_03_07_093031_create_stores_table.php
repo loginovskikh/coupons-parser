@@ -17,7 +17,7 @@ class CreateStoresTable extends Migration
             $table->bigIncrements('storeId');
             $table->string('storeName');
             $table->string('storeLink');
-            $table->bigInteger('categoryId');
+            $table->bigInteger('categoryId')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

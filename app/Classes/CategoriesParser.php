@@ -27,8 +27,7 @@ class CategoriesParser extends Parser
         }
         $result = null;
         $currentCategories = $this->getCategoriesFromDB();
-        $categories = $this->parsedData->filterXPath(CATEGORIES_XPATH);
-        $categoryDOMElements = $categories->filterXPath(CATEGORY_INFO);
+        $categoryDOMElements = $this->parseDOMEelements(CATEGORIES_XPATH);
         $start = microtime(true);
         foreach ($categoryDOMElements as $categoryDOM) {
             $parsedCategoryInfo = $this->extractCategoryInfo($categoryDOM);
@@ -102,16 +101,15 @@ class CategoriesParser extends Parser
             $this->createCategory($parsedCategory['name'], $parsedCategory['link']);
             echo 'Saved' . PHP_EOL;
         }
-
     }
 
     private function createCategory(string $name, string $link)
     {
         $category = new Category();
         $category->categoryName = $name;
-        var_dump($name);
+        //var_dump($name);
         $category->categoryLink = $link;
-        var_dump($link);
+        //var_dump($link);
         $category->save();
     }
 

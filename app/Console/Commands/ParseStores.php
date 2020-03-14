@@ -2,29 +2,34 @@
 
 namespace App\Console\Commands;
 
-use App\Classes\CategoriesParser;
+use App\Classes\StoresParser;
 use Exception;
 use Illuminate\Console\Command;
 
 require_once ('/var/www/coupons-parser/app/modules/Parser/conf/conf.php');
 
-class ParseCategories extends Command
+class ParseStores extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'parse:categories {--link='.CATEGORY_URL.'}';
+    protected $signature = 'parse:stores
+                            {--link= : URL to stores page (alphabet categories page)}
+                            {--all : Parse all stores }
+                            {--l= : Letter of alphabet category }';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Parse categories from website';
-
-    protected $parser;
+    protected $description = 'Parse stores from website';
+    /**
+     * @var StoresParser
+     */
+    private $parser;
 
     /**
      * Create a new command instance.
@@ -34,10 +39,8 @@ class ParseCategories extends Command
     public function __construct()
     {
         parent::__construct();
-
-        $this->parser = new CategoriesParser();
+        $this->parser = new StoresParser();
     }
-
 
     /**
      * Execute the console command.
@@ -47,9 +50,12 @@ class ParseCategories extends Command
      */
     public function handle()
     {
+        if($this->hasOption('link')) $link = $this->option('link');
+        if($this->hasOption('l')) $link = STORE_URL . $this->option('l');
+        echo $link . PHP_EOL;
         try {
-            $parse = $this->parser->parseCategories($this->option('link')) ? true : false;
-            $message = $parse ? 'Categories was parsed' : 'Empty parsed page';
+            $parse = $this->parser->parseStores($link) ? true : false;
+            $message = $parse ? 'Stores was parsed' : 'Empty parsed page';
             echo $message . PHP_EOL;
             echo 'Success' . PHP_EOL;
             return true;
