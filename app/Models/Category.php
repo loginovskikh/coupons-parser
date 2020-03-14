@@ -24,4 +24,41 @@ class Category extends Model
     {
         return $this->hasManyThrough('Coupon', 'Store');
     }
+
+    /**
+     * @return mixed
+     */
+    public function getCategoryName()
+    {
+        return $this->categoryName;
+    }
+
+    /**
+     * @param mixed $categoryName
+     */
+    public function setCategoryName($categoryName): void
+    {
+        $this->categoryName = $categoryName;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCategoryLink()
+    {
+        return $this->categoryLink;
+    }
+
+    /**
+     * @param mixed $categoryLink
+     */
+    public function setCategoryLink($categoryLink): void
+    {
+        $this->categoryLink = $categoryLink;
+    }
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+    }
 }

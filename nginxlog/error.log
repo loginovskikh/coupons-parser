@@ -13,3 +13,11 @@
 2020/03/02 16:45:03 [emerg] 1#1: host not found in upstream "php" in /etc/nginx/conf.d/default.conf:15
 2020/03/02 17:10:18 [error] 6#6: *1 connect() failed (113: No route to host) while connecting to upstream, client: 172.24.0.1, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://172.24.0.3:9000", host: "localhost:8080"
 2020/03/07 10:54:48 [emerg] 1#1: host not found in upstream "php" in /etc/nginx/conf.d/default.conf:15
+2020/03/09 19:51:38 [emerg] 1#1: host not found in upstream "php" in /etc/nginx/conf.d/default.conf:15
+2020/03/09 19:51:42 [emerg] 1#1: host not found in upstream "php" in /etc/nginx/conf.d/default.conf:15
+2020/03/09 19:51:47 [emerg] 1#1: host not found in upstream "php" in /etc/nginx/conf.d/default.conf:15
+2020/03/09 19:51:52 [emerg] 1#1: host not found in upstream "php" in /etc/nginx/conf.d/default.conf:15
+2020/03/09 19:51:57 [emerg] 1#1: host not found in upstream "php" in /etc/nginx/conf.d/default.conf:15
+2020/03/09 21:08:57 [emerg] 1#1: host not found in upstream "php" in /etc/nginx/conf.d/default.conf:15
+2020/03/09 21:17:56 [emerg] 1#1: host not found in upstream "php" in /etc/nginx/conf.d/default.conf:15
+2020/03/10 15:17:19 [emerg] 1#1: host not found in upstream "php" in /etc/nginx/conf.d/default.conf:15

@@ -1,8 +1,8 @@
 version: '3'
 services:
     postgres:
-#        image: postgres:11
-        build: Docker/postgres
+        image: postgres:11
+#        build: Docker/postgres
         restart: always
         ports:
             - '5432:5432'
@@ -28,6 +28,7 @@ services:
         working_dir: /var/www/coupons-parser
         links:
             - postgres
+            - proxy
         networks:
           coupons-parser-network:
                 aliases:
@@ -46,6 +47,16 @@ services:
         networks:
             coupons-parser-network:
                 aliases:
+                    - coupons-parser-network
+    proxy:
+        build: Docker/proxy1
+        restart: always
+#        ports:
+#            - '8119:8118'
+#            - '9081:9080'
+        networks:
+            coupons-parser-network:
+                 aliases:
                     - coupons-parser-network
 
 networks:
