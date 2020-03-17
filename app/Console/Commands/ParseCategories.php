@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Classes\CategoriesParser;
+use App\Classes\Parser\CategoriesParser;
 use Exception;
 use Illuminate\Console\Command;
+
 
 require_once ('/var/www/coupons-parser/app/modules/Parser/conf/conf.php');
 
@@ -15,7 +16,7 @@ class ParseCategories extends Command
      *
      * @var string
      */
-    protected $signature = 'parse:categories {--link='.CATEGORY_URL.'}';
+    protected $signature = 'parse:categories {--link='.CATEGORY_URL.'}'; //
 
     /**
      * The console command description.

@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Classes\StoresParser;
+use App\Classes\Parser\StoresParser;
 use Exception;
 use Illuminate\Console\Command;
 

@@ -15,6 +15,8 @@ class Store extends Model
 
     protected $primaryKey = 'storeId';
 
+    protected $fillable = ['storeName', 'storeLink'];
+
     public function coupons()
     {
         return $this->hasMany('Coupon');
@@ -23,6 +25,11 @@ class Store extends Model
     public function category()
     {
         return $this->belongsTo('Category');
+    }
+
+    public function state()
+    {
+        return $this->belongsTo('State');
     }
 
 }

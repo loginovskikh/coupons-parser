@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Classes;
+namespace App\Classes\Parser;
 
 use Exception;
 use Symfony\Component\DomCrawler\Crawler;
@@ -49,6 +49,11 @@ class Parser
     protected function parseDOMEelements($xpath)
     {
         return  $this->crawlerData->filterXPath($xpath);
+
+    }
+
+    protected function saveState($parsingMode, $storeId)
+    {
 
     }
 

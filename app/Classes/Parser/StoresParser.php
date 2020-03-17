@@ -1,9 +1,10 @@
 <?php
 
 
-namespace App\Classes;
+namespace App\Classes\Parser;
 
 
+use App\Classes\State\State;
 use App\Models\Store;
 use DOMElement;
 use Exception;
@@ -40,51 +41,32 @@ class StoresParser extends Parser
         $store->save();
     }
 
-    private function checkStoreUpdates(Collection $currentStores, array $parsedStore)
+    private function existsOrCreate(Collection $currentStores, array $parsedStore)
     {
-        $updates = false;
         $alreadyExists = false;
         foreach($currentStores as $currentStore) {
-            if($currentStore->storeName === $parsedStore['name']) {
-                if($currentStore->storeLink !== $parsedStore['link']) {
-                    echo 'Same names' . PHP_EOL;
-                    $currentStore->storeLink = $parsedStore['link'];
-                    $currentStore->save();
-                    $updates = true;
-                }
-                else {
-                    $alreadyExists = true;
-                }
-            }
-            else {
-                if($currentStore->storeLink === $parsedStore['link']) {
-                    echo 'Same links' . PHP_EOL;
-                    $currentStore->storeName = $parsedStore['name'];
-                    $currentStore->save();
-                    $updates = true;
-                }
+            if($currentStore->storeName === $parsedStore['name'] && $currentStore->storeLink === $parsedStore['link']) {
+                $alreadyExists = true;
+                break;
             }
         }
-
-        if(!$updates && !$alreadyExists) {
+        if(!$alreadyExists) {
             $this->createStore($parsedStore['name'], $parsedStore['link']);
-            echo 'Saved' . PHP_EOL;
         }
     }
 
-    public function parseStores(?string $url)
+    public function parseStores(string $url)
     {
-        if(!$this->html && $url) {
-            $this->getHTML($url);
-            try {
-                $this->parseHTML();
-            } catch (Exception $e) {
-                echo $e->getMessage();
-            }
+        $state = State::saveState('stores-by-letter', $url);
+        echo $state . PHP_EOL;
+
+        $this->getHTML($url);
+        try {
+            $this->parseHTML();
+        } catch (Exception $e) {
+            echo $e->getMessage();
         }
-        else {
-            throw new Exception('Nothing to parse');
-        }
+
         $result = null;
         $currentStores = $this->getStoresFromDB();
         $StoreDOMElements = $this->parseDOMEelements(STORE_XPATH);
@@ -93,7 +75,7 @@ class StoresParser extends Parser
             $parsedStoreInfo = $this->extractStoreInfo($storeDOM);
             if($parsedStoreInfo) {
                 if($currentStores) {
-                    $this->checkStoreUpdates($currentStores, $parsedStoreInfo);
+                    $this->existsOrCreate($currentStores, $parsedStoreInfo);
                     $result = true;
                 }
                 else {
@@ -101,6 +83,7 @@ class StoresParser extends Parser
                     $result = true;
                 }
             }
+
             else {
                 $result = null;
             }
@@ -108,7 +91,7 @@ class StoresParser extends Parser
         $end = microtime(true);
         $timing = $end - $start;
         echo 'Timing = ' . $timing . PHP_EOL;
-
+        State::deleteState($state);
         return $result;
     }
 

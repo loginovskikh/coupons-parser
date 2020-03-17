@@ -24,7 +24,7 @@ WORKDIR /var/www/coupons-parser
 
 ##ENTRYPOINT ["/tmp/entrypoint.sh"]
 #service privoxy restart; service tor restart;
-CMD composer install ;  php artisan migrate:refresh; php-fpm
+CMD composer install ;  php artisan migrate:refresh ; php-fpm
 
 #FROM ubuntu:bionic
 #ENV TZ=Europe/Moscow

@@ -1,4 +1,5 @@
 <?php
+namespace App\modules\Parser;
 
 define('CATEGORY_URL', 'https://www.coupons.com/coupon-codes/categories/');
 define('STORE_URL', 'https://www.coupons.com/coupon-codes/stores/');
