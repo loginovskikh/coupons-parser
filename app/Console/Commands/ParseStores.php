@@ -6,7 +6,7 @@ use App\Classes\Parser\StoresParser;
 use Exception;
 use Illuminate\Console\Command;
 
-require_once ('/var/www/coupons-parser/app/modules/Parser/conf/conf.php');
+require_once './app/modules/Parser/conf/conf.php';
 
 class ParseStores extends Command
 {
@@ -54,14 +54,13 @@ class ParseStores extends Command
         if($this->hasOption('l')) $link = STORE_URL . $this->option('l');
         echo $link . PHP_EOL;
         try {
-            $parse = $this->parser->parseStores($link) ? true : false;
-            $message = $parse ? 'Stores was parsed' : 'Empty parsed page';
+            $parse = $this->parser->parse($link);
+            $message = $parse . ' new stores was added';
             echo $message . PHP_EOL;
             echo 'Success' . PHP_EOL;
-            return true;
+            return $parse;
         } catch (Exception $e) {
             echo $e->getMessage() . PHP_EOL;
-            return false;
         }
     }
 }

@@ -4,6 +4,7 @@
 namespace App\Classes\Parser;
 
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Symfony\Component\DomCrawler\Crawler;
 
 require_once './app/modules/Parser/conf/conf.php';
@@ -38,24 +39,44 @@ class Parser
      */
     protected function parseHTML()
     {
-        if(isset($this->html)) {
+        if (isset($this->html)) {
             $this->crawlerData = new Crawler($this->html);
-        }
-        else {
+        } else {
             throw new Exception('Nothing to parse', 404);
         }
     }
 
     protected function parseDOMEelements($xpath)
     {
-        return  $this->crawlerData->filterXPath($xpath);
+        return $this->crawlerData->filterXPath($xpath);
 
     }
 
-    protected function saveState($parsingMode, $storeId)
+    /**
+     * @param array|null $parsedArray
+     * @param Collection|null $existedArray
+     * @return array
+     */
+    public function update($parsedArray, $existedArray)
     {
+        if ($parsedArray) {
+            if ($existedArray) {
+                foreach ($existedArray as $existedObject) {
+                    $exists = false;
+                    foreach ($parsedArray as $key => $parsedObject) {
+                        if (array_diff_assoc($existedObject->toArray(), $parsedObject)) {
+                            unset($parsedArray[$key]);
+                            $exists = true;
+                        }
+                    }
+                    if (!$exists) {
+                        $existedObject->delete();
+                    }
+                }
+            }
+        }
 
+        return $parsedArray;
     }
-
-
 }
+

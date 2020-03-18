@@ -17,6 +17,13 @@ class Store extends Model
 
     protected $fillable = ['storeName', 'storeLink'];
 
+    public function toArray()
+    {
+        $result['storeName'] = $this->getAttribute('storeName');
+        $result['storeLink'] = $this->getAttribute('storeLink');
+        return $result;
+    }
+
     public function coupons()
     {
         return $this->hasMany('Coupon');

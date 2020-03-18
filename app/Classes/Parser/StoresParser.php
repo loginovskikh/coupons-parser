@@ -3,7 +3,6 @@
 
 namespace App\Classes\Parser;
 
-
 use App\Classes\State\State;
 use App\Models\Store;
 use DOMElement;
@@ -12,11 +11,11 @@ use Illuminate\Database\Eloquent\Collection;
 
 class StoresParser extends Parser
 {
-    private function extractStoreInfo(DOMElement $storeDOMElement)
+    private function extractInfoFromDOM(DOMElement $storeDOMElement)
     {
         if($storeDOMElement) {
-            $result['name'] = $storeDOMElement->nodeValue;
-            $result['link'] = parse_url($storeDOMElement->getAttribute('href'))['path'];
+            $result['storeName'] = $storeDOMElement->nodeValue;
+            $result['storeLink'] = parse_url($storeDOMElement->getAttribute('href'))['path'];
         }
         else {
             $result = null;
@@ -25,41 +24,37 @@ class StoresParser extends Parser
         return $result;
     }
 
-    private function getStoresFromDB()
+    private function getFromDB()
     {
-        $stores = Store::all();
+        $stores = Store::all(['storeName', 'storeLink']);
         return ($stores->isEmpty()) ? null : $stores;
     }
 
-    private function createStore(string $name, string $link)
+    private function createNew(string $name, string $link)
     {
         $store = new Store();
         $store->storeName = $name;
-        //var_dump($name);
         $store->storeLink = $link;
-        //var_dump($link);
         $store->save();
+
+        return $store;
     }
 
-    private function existsOrCreate(Collection $currentStores, array $parsedStore)
+    private function saveParsedObjects($stores)
     {
-        $alreadyExists = false;
-        foreach($currentStores as $currentStore) {
-            if($currentStore->storeName === $parsedStore['name'] && $currentStore->storeLink === $parsedStore['link']) {
-                $alreadyExists = true;
-                break;
+        $newStoreCounter = 0;
+        if(is_array($stores)) {
+            foreach($stores as $store) {
+                $this->createNew($store['storeName'], $store['storeLink']);
+                $newStoreCounter++;
             }
         }
-        if(!$alreadyExists) {
-            $this->createStore($parsedStore['name'], $parsedStore['link']);
-        }
+
+        return $newStoreCounter;
     }
 
-    public function parseStores(string $url)
+    public function createParsedArray($url)
     {
-        $state = State::saveState('stores-by-letter', $url);
-        echo $state . PHP_EOL;
-
         $this->getHTML($url);
         try {
             $this->parseHTML();
@@ -67,32 +62,28 @@ class StoresParser extends Parser
             echo $e->getMessage();
         }
 
-        $result = null;
-        $currentStores = $this->getStoresFromDB();
+        $result = [];
         $StoreDOMElements = $this->parseDOMEelements(STORE_XPATH);
-        $start = microtime(true);
         foreach ($StoreDOMElements as $storeDOM) {
-            $parsedStoreInfo = $this->extractStoreInfo($storeDOM);
-            if($parsedStoreInfo) {
-                if($currentStores) {
-                    $this->existsOrCreate($currentStores, $parsedStoreInfo);
-                    $result = true;
-                }
-                else {
-                    $this->createStore($parsedStoreInfo['name'], $parsedStoreInfo['link']);
-                    $result = true;
-                }
-            }
-
-            else {
-                $result = null;
+            $parsedStoreInfo = $this->extractInfoFromDOM($storeDOM);
+            if ($parsedStoreInfo) {
+                $result[] = $parsedStoreInfo;
             }
         }
-        $end = microtime(true);
-        $timing = $end - $start;
-        echo 'Timing = ' . $timing . PHP_EOL;
-        State::deleteState($state);
+
         return $result;
     }
+
+    public function parse($url)
+    {
+        $parsedStores = $this->createParsedArray($url);
+        $existedStores = $this->getFromDB();
+
+        $newStores = $this->update($parsedStores, $existedStores);
+
+        return $this->saveParsedObjects($newStores);
+    }
+
+
 
 }
