@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Classes\Parser\StoresParser;
+use App\Classes\State\State;
 use Exception;
 use Illuminate\Console\Command;
 
-require_once './app/modules/Parser/conf/conf.php';
 
 class ParseStores extends Command
 {
@@ -18,7 +18,9 @@ class ParseStores extends Command
     protected $signature = 'parse:stores
                             {--link= : URL to stores page (alphabet categories page)}
                             {--all : Parse all stores }
-                            {--l= : Letter of alphabet category }';
+                            {--l= : Letter of alphabet category }
+                            {--force : Run command ignoring previous state }
+                            {--la= : array of STORES_ALPHABET_CATEGORIES }';
 
     /**
      * The console command description.
@@ -42,6 +44,23 @@ class ParseStores extends Command
         $this->parser = new StoresParser();
     }
 
+    private function parseStore($link)
+    {
+        if ($link) {
+            echo $link . PHP_EOL;
+            try {
+                $parse = $this->parser->parse($link);
+                echo $parse . ' new stores was added' . PHP_EOL;
+                echo 'Success' . PHP_EOL;
+            } catch (Exception $e) {
+                echo $e->getMessage() . PHP_EOL;
+            }
+        } else {
+            echo 'Set --link or -l option' . PHP_EOL;
+            exit;
+        }
+    }
+
     /**
      * Execute the console command.
      *
@@ -50,17 +69,45 @@ class ParseStores extends Command
      */
     public function handle()
     {
-        if($this->hasOption('link')) $link = $this->option('link');
-        if($this->hasOption('l')) $link = STORE_URL . $this->option('l');
-        echo $link . PHP_EOL;
-        try {
-            $parse = $this->parser->parse($link);
-            $message = $parse . ' new stores was added';
-            echo $message . PHP_EOL;
-            echo 'Success' . PHP_EOL;
-            return $parse;
-        } catch (Exception $e) {
-            echo $e->getMessage() . PHP_EOL;
+        if(($this->option('link'))) {
+            $link = $this->option('link');
+        }
+        elseif($this->option('l')) {
+            $link = config('parser.STORE_URL') . $this->option('l');
+        }
+        else {
+            $link = null;
+        }
+
+        $letterArray = ($this->option('la')) ? : config('parser.STORES_ALPHABET_CATEGORIES');
+        $all         = $this->option('all');
+        $force       = $this->option('force');
+
+        $state = State::checkState();
+
+        if($force || !$state)
+        {
+            if($all) {
+                if($letterArray) {
+                    $state = State::saveState('all-stores', $link);
+                    foreach ($letterArray as $letter) {
+                        $link = config('parser.STORE_URL') . $letter;
+                        State::updateState($state, $link);
+
+                        $this->parseStore($link);
+                    }
+                    State::deleteState($state->stateId);
+                }
+            }
+            else {
+                $state = State::saveState('stores-by-letter', $link);
+                $this->parseStore($link);
+                State::deleteState($state->stateId);
+            }
+        }
+        else {
+            State::RestorePreviousCommandByState($state);
+            State::deleteState($state->stateId);
         }
     }
 }

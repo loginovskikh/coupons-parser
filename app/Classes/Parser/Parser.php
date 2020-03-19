@@ -7,7 +7,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Symfony\Component\DomCrawler\Crawler;
 
-require_once './app/modules/Parser/conf/conf.php';
 require_once './app/modules/Curl/curl.php';
 
 class Parser
@@ -60,16 +59,21 @@ class Parser
     public function update($parsedArray, $existedArray)
     {
         if ($parsedArray) {
+            echo 'Parsed array = ' . count($parsedArray) .PHP_EOL;
             if ($existedArray) {
+                echo 'Existed array = ' . count($existedArray) .PHP_EOL;
                 foreach ($existedArray as $existedObject) {
-                    $exists = false;
                     foreach ($parsedArray as $key => $parsedObject) {
-                        if (array_diff_assoc($existedObject->toArray(), $parsedObject)) {
-                            unset($parsedArray[$key]);
-                            $exists = true;
+                        $compareKey = null;
+                        if (!array_diff_assoc($existedObject->attributeToArray(), $parsedObject)) {
+                            $compareKey = $key;
+                            break;
                         }
                     }
-                    if (!$exists) {
+                    if($compareKey !== null) {
+                        unset($parsedArray[$compareKey]);
+                    }
+                    else {
                         $existedObject->delete();
                     }
                 }

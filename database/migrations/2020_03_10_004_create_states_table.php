@@ -16,7 +16,7 @@ class CreateStatesTable extends Migration
         Schema::create('states', function (Blueprint $table) {
             $table->bigIncrements('stateId');
             $table->enum('parsingMode', ['all-stores', 'coupons', 'stores-by-letter']);
-            $table->string('parsedLink');
+            $table->string('parsedLink')->nullable();
             $table->timestamps();
         });
     }

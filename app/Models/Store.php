@@ -17,7 +17,7 @@ class Store extends Model
 
     protected $fillable = ['storeName', 'storeLink'];
 
-    public function toArray()
+    public function attributeToArray()
     {
         $result['storeName'] = $this->getAttribute('storeName');
         $result['storeLink'] = $this->getAttribute('storeLink');

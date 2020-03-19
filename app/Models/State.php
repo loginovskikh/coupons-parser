@@ -2,35 +2,55 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 
 
 class State extends Model
 {
-    const MODES = ['all-stores', 'coupons', 'stores-by-letter'];
-
     private $parsingMode;
 
     private $parsedLink;
 
     protected $primaryKey = 'stateId';
 
+    /**
+     * @param string $value
+     * @throws Exception
+     */
     public function setParsingModeAttribute($value)
     {
-        if(in_array($value, self::MODES)) {
+        if(in_array($value, config('parser.PARSING_MODE'))) {
             $this->attributes['parsingMode'] = $value;
         }
         else {
-            throw new \Exception('Invalid parsing mode');
+            throw new Exception('Invalid parsing mode');
         }
     }
 
-
-    public function stores()
+    /**
+     * @return string
+     */
+    public function getParsingMode()
     {
-        return $this->hasMany('Store');
+        return $this->getAttribute('parsingMode');
     }
 
+    /**
+     * @param string $parsedLink
+     */
+    public function setParsedLink($parsedLink): void
+    {
+        $this->attributes['parsedLink'] = $parsedLink;
+    }
+
+    /**
+     * @return string
+     */
+    public function getParsedLink()
+    {
+        return $this->getAttribute('parsedLink');
+    }
 
 
 }

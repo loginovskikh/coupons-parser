@@ -7,7 +7,6 @@ use App\Classes\State\State;
 use App\Models\Store;
 use DOMElement;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 
 class StoresParser extends Parser
 {
@@ -24,9 +23,18 @@ class StoresParser extends Parser
         return $result;
     }
 
-    private function getFromDB()
+    private function getFromDB($letter)
     {
-        $stores = Store::all(['storeName', 'storeLink']);
+        if(ctype_alpha($letter)) {
+            $upperLetter = strtoupper($letter);
+            $stores = Store::withoutTrashed()->where('storeName', '~', '^('.$letter.'|'.$upperLetter.')(\w|\s)*')
+                //->orWhere('storeName', 'like', $upperLetter . ' %')
+                ->get();
+        }
+        else {
+            $stores = Store::withoutTrashed()->where('storeName', '~', '^\d(\w|\s|\d)*')->get();
+        }
+
         return ($stores->isEmpty()) ? null : $stores;
     }
 
@@ -63,7 +71,7 @@ class StoresParser extends Parser
         }
 
         $result = [];
-        $StoreDOMElements = $this->parseDOMEelements(STORE_XPATH);
+        $StoreDOMElements = $this->parseDOMEelements(config('parser.STORE_XPATH'));
         foreach ($StoreDOMElements as $storeDOM) {
             $parsedStoreInfo = $this->extractInfoFromDOM($storeDOM);
             if ($parsedStoreInfo) {
@@ -76,14 +84,11 @@ class StoresParser extends Parser
 
     public function parse($url)
     {
+        $letter = State::getLastLetter($url);
         $parsedStores = $this->createParsedArray($url);
-        $existedStores = $this->getFromDB();
-
+        $existedStores = $this->getFromDB($letter);
         $newStores = $this->update($parsedStores, $existedStores);
 
         return $this->saveParsedObjects($newStores);
     }
-
-
-
 }
