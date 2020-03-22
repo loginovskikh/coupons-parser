@@ -49,7 +49,7 @@ services:
                 aliases:
                     - coupons-parser-network
     proxy:
-        build: Docker/proxy1
+        build: Docker/proxy
         restart: always
 #        ports:
 #            - '8119:8118'

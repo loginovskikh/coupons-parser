@@ -3,27 +3,22 @@
 
 namespace App\Classes\State;
 
-use Exception;
 use Illuminate\Support\Facades\Artisan;
 
 class State
 {
-    public static function saveState($parsingMode, $parsedLink)
+    public static function saveState($parsingMode, $parsedLink) : \App\Models\State
     {
-        try {
-            $state = new \App\Models\State();
-            $state->setParsedLink($parsedLink);
-            $state->setParsingModeAttribute($parsingMode);
-            $state->save();
+        $state = new \App\Models\State();
+        $state->setParsedLink($parsedLink);
+        $state->setParsingModeAttribute($parsingMode);
+        $state->save();
 
-            return $state;
+        return $state;
 
-        } catch (Exception $e) {
-            echo $e->getMessage();
-        }
     }
 
-    public static function updateState(\App\Models\State $state, $parsedLink)
+    public static function updateState(\App\Models\State $state, $parsedLink) : void
     {
         $state->setParsedLink($parsedLink);
         $state->save();
@@ -34,7 +29,7 @@ class State
         \App\Models\State::destroy($stateId);
     }
 
-    public static function checkState()
+    public static function checkState() : ?\App\Models\State
     {
         $currentState = \App\Models\State::all()->last();
 
@@ -60,14 +55,14 @@ class State
 
     }
 
-    public static function getLastLetter(string $link)
+    public static function getLastLetter(string $link) : string
     {
         $linkArray = explode('/', $link);
 
         return $linkArray[count($linkArray) -1];
     }
 
-    private static function splitLetterArray($link)
+    private static function splitLetterArray($link) :array
     {
         $letter = self::getLastLetter($link);
         $position = array_search($letter, config('parser.STORES_ALPHABET_CATEGORIES'));

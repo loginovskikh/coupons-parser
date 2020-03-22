@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Classes\Parser\StoresParser;
 use App\Classes\State\State;
+use App\Exceptions\ParsingException;
 use Exception;
 use Illuminate\Console\Command;
 
@@ -47,17 +48,12 @@ class ParseStores extends Command
     private function parseStore($link)
     {
         if ($link) {
-            echo $link . PHP_EOL;
-            try {
-                $parse = $this->parser->parse($link);
-                echo $parse . ' new stores was added' . PHP_EOL;
-                echo 'Success' . PHP_EOL;
-            } catch (Exception $e) {
-                echo $e->getMessage() . PHP_EOL;
-            }
+            echo 'URL: ' . $link . PHP_EOL;
+            $parse = $this->parser->parse($link);
+            echo $parse . ' new stores was added' . PHP_EOL;
+            echo 'Success' . PHP_EOL;
         } else {
-            echo 'Set --link or -l option' . PHP_EOL;
-            exit;
+            throw new Exception('Set --link or -l option');
         }
     }
 
@@ -85,29 +81,34 @@ class ParseStores extends Command
 
         $state = State::checkState();
 
-        if($force || !$state)
-        {
-            if($all) {
-                if($letterArray) {
-                    $state = State::saveState('all-stores', $link);
-                    foreach ($letterArray as $letter) {
-                        $link = config('parser.STORE_URL') . $letter;
-                        State::updateState($state, $link);
+        try {
+            if($force || !$state)
+            {
+                if($all) {
+                    if($letterArray) {
+                        $state = State::saveState('all-stores', $link);
+                        foreach ($letterArray as $letter) {
+                            $link = config('parser.STORE_URL') . $letter;
+                            State::updateState($state, $link);
 
-                        $this->parseStore($link);
+                            $this->parseStore($link);
+                        }
+                        State::deleteState($state->stateId);
                     }
+                }
+                else {
+                    $state = State::saveState('stores-by-letter', $link);
+                    $this->parseStore($link);
                     State::deleteState($state->stateId);
                 }
             }
             else {
-                $state = State::saveState('stores-by-letter', $link);
-                $this->parseStore($link);
+                State::RestorePreviousCommandByState($state);
                 State::deleteState($state->stateId);
             }
+        } catch (Exception $exception) {
+            throw new ParsingException('An error occurred while parsing data', 0, $exception);
         }
-        else {
-            State::RestorePreviousCommandByState($state);
-            State::deleteState($state->stateId);
-        }
+
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Classes\State\State;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
@@ -36,7 +37,17 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
+        if($exception instanceof ParsingException) {
+            $state = State::checkState();
+            State::deleteState($state->stateId);
+            echo $exception->getMessage() . ': '. $exception->getPrevious()->getMessage() .PHP_EOL;
+        }
+        else {
+            echo $exception->getMessage() . PHP_EOL;
+        }
+        echo $exception->getMessage() . PHP_EOL;
         parent::report($exception);
+        exit;
     }
 
     /**
